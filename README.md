@@ -1,3 +1,3 @@
 # demarches-simplifiees-docker
 
-un test
+L'objet de ce projet est de créer une image Docker de démarche simplifiée
