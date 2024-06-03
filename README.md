@@ -20,6 +20,10 @@ docker build -t "Ruby-3.3.0-Node-20.x-Yarn-slim-bookworm:0.1" .
 Deux modules sont déployables
 
 * Une partie IHM utilisant les technologies :
-** Ruby on Rails
-** React
-** Node.js
+  * Ruby on Rails
+  * React
+  * Node.js
+
+# Aspect
+
+Configuration par environnement
