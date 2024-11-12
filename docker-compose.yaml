@@ -1,0 +1,22 @@
+services:
+
+  redis:
+    image: "redis:7-alpine"
+    ports:
+      - 6379
+    volumes:
+      - ./tmp/redis_data:/var/lib/redis/data
+
+  db:
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    ports:
+      - 5432:5432
+    volumes:
+      - ./tmp/postgres_data:/var/lib/postgresql/data
+
+volumes:
+  ruby-bundle-cache:
+    external: true
