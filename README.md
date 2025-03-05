@@ -27,3 +27,24 @@ Deux modules sont déployables
 # Aspect
 
 Configuration par environnement
+
+```plantuml
+@startuml
+@startuml C4_Elements
+!include <C4/C4_Container>
+
+Person(personAlias, "Label", "Optional Description")
+Container(containerAlias, "Label", "Technology", "Optional Description")
+System(systemAlias, "Label", "Optional Description")
+
+Rel(personAlias, containerAlias, "Label", "Optional Technology")
+@enduml
+```
+
+# Initialisation de la base de données
+
+Lancer la commande ci-dessous en ruby dans le cas où la base de données n'a jamais été initialisée
+
+```bash
+rails db:reset
+```
