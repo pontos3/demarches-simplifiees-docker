@@ -33,6 +33,21 @@ services:
   batch:
     image: diplodemarches:latest
     restart: always
+    command: "bin/bundle exec sidekiq -c 3 -q mailers -q default -q active_storage_analysis -q purge -q low_priority"
+    depends_on:
+      - redis
+      - db 
+    env_file:
+      - resources/diplodemarches.env
+    volumes:
+      - diplodemarches_storage_volume:/diplodemarches/storage:rw
+    networks:
+      - diplodemarches_private_network
+
+  batch_export:
+    image: diplodemarches:latest
+    restart: always
+    command: "bin/bundle exec rake jobs:work"
     depends_on:
       - redis
       - db 
