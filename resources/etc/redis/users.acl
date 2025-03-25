@@ -1,0 +1,2 @@
+user default on >Passw0rd ~* &* +@all
+user diplodemarches_sidekiq on >Passw1rd ~* &* +@all -@dangerous +info

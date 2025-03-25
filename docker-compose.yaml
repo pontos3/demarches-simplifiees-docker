@@ -1,0 +1,109 @@
+
+services:
+
+  proxy:
+    image: bitnami/apache:latest
+    restart: always
+    depends_on:
+      - frontend
+    ports:
+      - "443:8443"
+    volumes:
+      - ./resources/proxy/ssl:/opt/bitnami/apache/conf/ssl:rw
+      - ./resources/proxy/httpd.conf:/opt/bitnami/apache/conf/httpd.conf:rw
+      - ./resources/proxy/diplodemarches.agents.conf:/opt/bitnami/apache/conf/vhosts/diplodemarches.agents.conf:rw
+    networks:
+      - diplodemarches_private_network
+
+  frontend:
+    image: diplodemarches:latest
+    restart: always
+    depends_on:
+      - redis
+      - db
+    env_file:
+      - resources/diplodemarches.env
+    ports:
+      - "3000:3000"
+    volumes:
+      - diplodemarches_storage_volume:/diplodemarches/storage:rw
+    networks:
+      - diplodemarches_private_network
+
+  batch:
+    image: diplodemarches:latest
+    restart: always
+    command: "bin/bundle exec sidekiq -c 3 -q mailers -q default -q active_storage_analysis -q purge -q low_priority"
+    depends_on:
+      - redis
+      - db 
+    env_file:
+      - resources/diplodemarches.env
+    volumes:
+      - diplodemarches_storage_volume:/diplodemarches/storage:rw
+    networks:
+      - diplodemarches_private_network
+
+  batch_export:
+    image: diplodemarches:latest
+    restart: always
+    command: "bin/bundle exec rake jobs:work"
+    depends_on:
+      - redis
+      - db 
+    env_file:
+      - resources/diplodemarches.env
+    volumes:
+      - diplodemarches_storage_volume:/diplodemarches/storage:rw
+    networks:
+      - diplodemarches_private_network
+
+  redis:
+    image: bitnami/redis:7.4
+    restart: always
+    environment:
+      ALLOW_EMPTY_PASSWORD: yes
+      REDIS_ACLFILE: /opt/bitnami/redis/mounted-etc/users.acl
+    ports:
+      - "6379:6379"
+    volumes:
+      - diplodemarches_redis_volume:/bitnami/redis/data
+      - ./resources/etc/redis/users.acl:/opt/bitnami/redis/mounted-etc/users.acl:rw
+    networks:
+      - diplodemarches_private_network
+
+  db:
+    image: postgis/postgis:latest
+    restart: always
+    environment:
+      POSTGRES_DB: diplodemarches
+      POSTGRES_USER: diplodemarches_dbo
+      POSTGRES_PASSWORD: diplodemarches_dbo
+    ports:
+      - 5432:5432
+    volumes:
+      - diplodemarches_db_volume:/var/lib/postgresql/data:rw
+    networks:
+      - diplodemarches_private_network        
+
+  mailserver:
+    image: mailhog/mailhog:latest
+    logging:
+      driver: none
+    restart: always
+    ports:
+      - 1025:1025
+      - 8025:8025
+    networks:
+      - diplodemarches_private_network 
+
+networks:
+  diplodemarches_private_network:
+    name: diplodemarches_private_network
+    driver: bridge
+
+volumes:
+  diplodemarches_db_volume:
+  diplodemarches_redis_volume:
+  diplodemarches_storage_volume:
+

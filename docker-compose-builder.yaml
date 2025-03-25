@@ -1,0 +1,8 @@
+services:
+
+  frontend:
+    build: .
+
+volumes:
+  ruby-bundle-cache:
+    external: true
